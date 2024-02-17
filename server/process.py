@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import json, sys
 
-def main(string):
-    json_raw = string.splitlines()
+def main():
+    s = open("tmp.json", "r")
+    json_raw = s.read().splitlines()
+    s.close()
     for a in json_raw:
         data = json.loads(a)
         name = data["character"]
@@ -39,7 +41,4 @@ def main(string):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
-        main(sys.argv[1])
-    else:
-        print("shit")
+    main()

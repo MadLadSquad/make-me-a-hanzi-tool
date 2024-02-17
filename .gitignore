@@ -4,4 +4,6 @@
 .svgs
 dictionary.txt
 graphics.txt
-stroke_caps
+server/output/*.json
+stroke_caps/node_modules/
+#stroke_caps
