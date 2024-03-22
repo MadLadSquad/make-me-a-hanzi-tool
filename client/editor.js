@@ -131,6 +131,16 @@ Template.editor.events({
     stage.handleEvent(event, this);
     stage.forceRefresh();
   },
+  "mouseenter svg .selectable": function (event) {
+    $(".popup").text(
+      `${$(event.target).attr("cx")},${$(event.target).attr("cy")}`,
+    );
+    let origin = $("svg").offset();
+    $(".popup").css(
+      "transform",
+      `translate(${event.pageX}px, ${event.pageY}px)`,
+    );
+  },
   "click svg": function (e) {
     if (stage.type === types[1] && e.ctrlKey) {
       stage.createPoint(e);
@@ -183,15 +193,15 @@ Meteor.startup(() => {
       const index = key.charCodeAt(0) - "1".charCodeAt(0);
       const href = $(".metadata .reference")[index].href;
       window.open(href, "_blank").focus();
+    } else if (key == "B") {
+      $(".keybinds").toggle();
     }
   });
-  $("body").on("mousemove", (e) => {
-    var svg = $("svg g");
-    var p = new DOMPoint(e.pageX, e.pageY);
-    var svgp = p.matrixTransform(svg[0].getScreenCTM().inverse());
-
-    $(".coord").text(`(${Math.round(svgp.x)},${Math.round(svgp.y)})`);
-  });
+  // $("body").on("mousemove", (e) => {
+  //   var svg = $("svg g");
+  //   var p = new DOMPoint(e.pageX, e.pageY);
+  //   var svgp = p.matrixTransform(svg[0].getScreenCTM().inverse());
+  // });
   $(window).on("hashchange", loadCharacter);
   cjklib.promise.then(loadCharacter).catch(console.error.bind(console));
 });

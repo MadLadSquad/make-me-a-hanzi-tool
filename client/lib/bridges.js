@@ -3,7 +3,7 @@ import { assert, Point } from "/lib/base";
 import { stroke_extractor, Endpoint } from "/lib/stroke_extractor";
 
 const bridgeKey = (bridge) => bridge.map(Point.key).join("-");
-
+// p1,p2,p3-p4,p2,p3
 const removeBridge = (bridges, bridge) => {
   const keys = {};
   keys[bridgeKey(bridge)] = true;
@@ -20,6 +20,7 @@ class BridgesStage extends AbstractStage {
     this.endpoints = bridges.endpoints.reduce((x, y) => x.concat(y), []);
     this.path = glyph.stages.path;
     this.selected_point = undefined;
+    this.temp_point = undefined;
   }
   handleClickOnBridge(bridge) {
     this.adjusted = removeBridge(this.adjusted, bridge);
@@ -31,7 +32,19 @@ class BridgesStage extends AbstractStage {
     } else if (Point.equal(point, this.selected_point)) {
       this.selected_point = undefined;
       return;
-    }
+    } //else if (Point.equal(point, this.temp_point)) {
+    //   this.selected_point = this.temp_point;
+    //   let points = Session.get("stage.points");
+    //   points.push({
+    //     cls: "selectable",
+    //     cx: this.selected_point[0],
+    //     cy: this.selected_point[1],
+    //     fill: "green",
+    //     stroke: "black",
+    //   });
+    //   Session.set("stage.points", points);
+    //   return;
+    // }
     const bridge = [point, this.selected_point];
     this.selected_point = undefined;
     const without = removeBridge(this.adjusted, bridge);
@@ -62,126 +75,105 @@ class BridgesStage extends AbstractStage {
     console.log(sp);
 
     var min = Infinity;
-    var closest = this.endpoints[0];
+    var closest = this.endpoints[0].point;
+    this.temp_points = closest;
 
-    let debug = [{}];
-    this.endpoints
-      .map((e) => {
-        if (e.segments[0].control === undefined) {
-          return [getBounds(e.segments[0].start, e.segments[0].end), e];
-          // return [Point.midpoint(e.segments[0].start, e.segments[0].end), e];
-        } else {
-          return [
-            getBounds(
-              e.segments[0].start,
-              e.segments[0].end,
-              e.segments[0].control,
-            ),
-            e,
-          ];
-          // return [e.segments[0].control, e];
-        }
-      })
-      // fun coincidence lol abcde
-      .forEach(([[a, b, c, d], e]) => {
-        // a is [maxx, maxy] and d is [minx, miny] so only these are needed.
-        let p = [undefined, undefined];
-        p[0] = Math.max(d[0] - sp[0], 0, sp[0] - a[0]);
-        p[1] = Math.max(d[1] - sp[1], 0, sp[1] - a[1]);
+    var idx = 0;
 
-        debug.push({
-          d: `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]} L ${d[0]} ${d[1]} L ${c[0]} ${c[1]} Z`,
-          fill: "rgba(22, 222, 33,0.25)",
-          stroke: "green",
-        });
-        let dist = Point.distance2(a, sp);
+    let t = 0;
+    this.endpoints.forEach((e, i) => {
+      let seg = e.segments[0];
+      let c;
+      [c, t] = closestPointToBezier(seg.start, seg.end, seg.control, sp);
+      let d = Point.distance2(c, sp);
 
-        if (dist < min) {
-          min = dist;
-          closest = e;
-
-          debug[0] = {
-            d: `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]} L ${d[0]} ${d[1]} L ${c[0]} ${c[1]} Z`,
-            fill: "rgba(222, 99, 22,0.5)",
-            stroke: "orange",
-          };
-        }
-      });
-    Session.set("stage.paths", [
-      { d: this.path, fill: "gray", stroke: "black" },
-      ...debug,
-    ]);
-
-    var cp = closest.point;
-    var seg = closest.segments;
-    assert(seg.length === 2, "Not enough segments!");
-    console.log(seg[0]);
-    var start = seg[0].start;
-    var end = seg[0].end;
-    var control = seg[0].control;
-
-    var t;
-    var x;
-    var y;
-    var precision = 100; //number of iterations
-    const epsilon = 1e-6; //threshold
-    var low = 0;
-    var high = 1;
-
-    for (let i = 0; i < precision; i++) {
-      var mid = (low + high) / 2;
-      var d_low = Point.distance2(bezierPoint(low, start, end, control), sp);
-      var d_mid = Point.distance2(bezierPoint(mid, start, end, control), sp);
-      var d_high = Point.distance2(bezierPoint(high, start, end, control), sp);
-
-      if (d_mid < epsilon) {
-        t = mid;
+      if (d < min) {
+        min = d;
+        closest = c;
+        idx = i;
       }
+    });
 
-      if (d_low < d_high) {
-        high = mid;
-      } else {
-        low = mid;
-      }
-    }
-    t = (low + high) / 2;
-    [x, y] = bezierPoint(t, start, end, control);
+    let start = this.endpoints[idx].segments[0].start;
+    let end = this.endpoints[idx].segments[0].end;
+    let control = this.endpoints[idx].segments[0].control;
 
-    //`M ${cp.x} ${cp.y}`
+    let points = Session.get("stage.points");
+    let sector = this.endpoints[idx].index[0];
+    let endpoint_idx = this.endpoints[idx].index[1];
+    let exterior = sector % 2 == 0; //exterior paths are anti-clockwise
+    let newIndex = [sector, exterior ? endpoint_idx - 1 : endpoint_idx + 1];
+
+    this.endpoints.splice(
+      newIndex[1],
+      0,
+      new Endpoint(
+        [
+          [
+            {
+              start: start,
+              control: Point.add(
+                Point.scale(1 - t, start),
+                Point.scale(t, control),
+              ),
+              end: closest,
+            },
+            {
+              start: closest,
+              control: Point.add(
+                Point.scale(1 - t, closest),
+                Point.scale(t, end),
+              ),
+              end: end,
+            },
+          ],
+        ],
+        newIndex,
+        true,
+      ),
+    );
+    // console.log(this.endpoints[idx]);
+    // console.log(newIndex[1]);
+    // console.log(this.endpoints);
+
+    points.push({
+      cls: "selectable",
+      cx: closest[0],
+      cy: closest[1],
+      fill: "green",
+      stroke: "black",
+    });
+    points.push({
+      cls: "selectable",
+      cx: start[0],
+      cy: start[1],
+      fill: "orange",
+      stroke: "black",
+    });
+    points.push({
+      cls: "selectable",
+      cx: end[0],
+      cy: end[1],
+      fill: "orange",
+      stroke: "black",
+    });
+    // points.push({
+    //   cls: "selectable",
+    //   cx: this.endpoints[idx].point[0],
+    //   cy: this.endpoints[idx].point[1],
+    //   fill: "purple",
+    //   stroke: "black",
+    // });
+    Session.set("stage.points", points);
+
     const entry = {
       cls: "success",
-      message:
-        `closest: (${cp[0]},${cp[1]})\n` +
-        `start:   (${start[0]},${start[1]})\n` +
-        `end:     (${end[0]},${end[1]})`,
+      message: `Create a point at (${closest[0].toFixed(2)},${closest[1].toFixed(2)})\n`,
     };
-    Session.set("stage.points", [
-      ...[start, end].map((i) => {
-        return {
-          cls: "selectable",
-          cx: i[0],
-          cy: i[1],
-          fill: "green",
-          stroke: "black",
-        };
-      }),
-      {
-        cls: "selectable",
-        cx: x,
-        cy: y,
-        fill: "red",
-        stroke: "black",
-      },
-    ]);
-    // Session.set("stage.paths", [
-    //   { d: this.path, fill: "gray", stroke: "black" },
-    //   {
-    //     d: `M ${seg[0].start[0]} ${seg[0].start[1]} Q ${seg[0].control[0]} ${seg[0].control[1]} ${seg[0].end[0]} ${seg[0].end[1]}`,
-    //     fill: "none",
-    //     stroke: "orange",
-    //   },
-    // ]);
-    Session.set("stage.status", [entry]);
+
+    let statuses = Session.get("stage.status");
+    statuses.push(entry);
+    Session.set("stage.status", statuses);
   }
 
   refreshUI() {
@@ -247,6 +239,36 @@ function bezierPoint(t, start, end, control = undefined) {
       t * t * end[1];
   }
   return [x, y];
+}
+
+function closestPointToBezier(start, end, control, target) {
+  var t;
+  var precision = 100; //number of iterations
+  const epsilon = 1e-6; //threshold
+  var low = 0;
+  var high = 1;
+
+  for (let i = 0; i < precision; i++) {
+    var mid = (low + high) / 2;
+    var d_low = Point.distance2(bezierPoint(low, start, end, control), target);
+    var d_mid = Point.distance2(bezierPoint(mid, start, end, control), target);
+    var d_high = Point.distance2(
+      bezierPoint(high, start, end, control),
+      target,
+    );
+
+    if (d_mid < epsilon) {
+      t = mid;
+    }
+
+    if (d_low < d_high) {
+      high = mid;
+    } else {
+      low = mid;
+    }
+  }
+  t = (low + high) / 2;
+  return [bezierPoint(t, start, end, control), t];
 }
 
 function getBounds(start, end, control = undefined) {

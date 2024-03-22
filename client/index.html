@@ -60,7 +60,24 @@
 
 <template name="editor">
   <div id="editor">
-    <div class="left-pane">{{> metadata}} {{> status}}</div>
+    <div class="popup panel panel-primary">shadfbu</div>
+    <div class="left-pane">
+      {{> metadata}} {{> status}}
+      <div class="keybinds panel panel-primary">
+        <code>a</code> get previous glyph<br />
+        <code>A</code> get previous unverified glyph<br />
+        <code>q</code> get previous verified glyph<br />
+        <code>d</code> get next glyph<br />
+        <code>D</code> get next unverified glyph<br />
+        <code>e</code> get next verified glyph<br />
+        <code>r</code> reset stage<br />
+        <code>s</code> previous stage<br />
+        <code>w</code> next stage<br />
+        <code>C-click</code> create a point<br />
+        <code>1</code>-<code>9</code> open reference<br />
+        <code>B</code> toggles this popup<br />
+      </div>
+    </div>
     <svg viewbox="0 0 1024 1024" style="border: 1px solid">
       <g transform="scale(1, -1) translate(0, -900)">
         {{#each paths}}
@@ -117,7 +134,7 @@
     </div>
     {{#each items}}
     <div class="field">
-      <label class="control-label">{{label}}</label>
+      <label class="control-label" placeholder="(unknown)">{{label}}</label>
       {{{editable field value}}}{{separator}}{{{extra}}}
     </div>
     {{/each}}
@@ -127,10 +144,6 @@
       <a class="reference" href="{{href}}" target="_blank">{{label}}</a>
       <div class="separator">•</div>
       {{/each}}
-    </div>
-    <div class="field">
-      <label class="control-label">SVG pos:</label>
-      <div class="coord"></div>
     </div>
   </div>
 </template>
