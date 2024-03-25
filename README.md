@@ -28,8 +28,8 @@ Editor usage:
 In addition to improving the editor, we've also added scripts to make generating data for [youyin](https://github.com/MadLadSquad/YouyinWeb) and 
 [hanzi-writer](https://github.com/chanind/hanzi-writer) easier. All scripts are located under the `server/` directory because that's where the character data is generated.
 
-1. `process.py` - Reads the `make-me-a-hanzi` dictionary from the characters you have created and converts it to individual character files in `hanzi-writer` format under the `output` folder. Do not use directly, use `run.sh` instead
-1. `run.sh` - Gets the character data from the meteor database, exports it to `tmp.json`, which is used as a `make-me-a-hanzi` dictionary file. It then runs `process.py`
+- `process.py` - Reads the `make-me-a-hanzi` dictionary from the characters you have created and converts it to individual character files in `hanzi-writer` format under the `output` folder. Do not use directly, use `run.sh` instead
+- `run.sh` - Gets the character data from the meteor database, exports it to `tmp.json`, which is used as a `make-me-a-hanzi` dictionary file. It then runs `process.py`
 
 ### `youyin-dev-run.sh`
 This script runs `./run.sh` for Youyin development. First, make sure you have the following repositories cloned in the same folder without renames:
