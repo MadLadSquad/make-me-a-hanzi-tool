@@ -49,4 +49,4 @@ With this setup, you can test characters. Now, every time you have finished a ba
 1. Go into `YouyinWeb` and run `./run.sh` to start the server.
 1. Finally, open Youyin locally on `http://0.0.0.0:8080` and try creating character cards with the new characters.
 
-Once all characters are working and generated correctly, simply got to the `hanzi-writer-data-youyin` directory, commit and push the changes.
+Once all characters are working and generated correctly, simply go to the `hanzi-writer-data-youyin` directory, commit and push the changes.
