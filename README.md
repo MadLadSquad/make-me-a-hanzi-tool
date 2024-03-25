@@ -44,9 +44,9 @@ Next, edit `YouyinWeb/index.js` and change the `window.CHARACTER_FETCH_URL` stri
 
 With this setup, you can test characters. Now, every time you have finished a batch of characters, go into the `make-me-a-hanzi-tool/server` directory and run `./youyin-dev-run.sh`. It will:
 
-1. Create `hanzi-writer` character files, like `run.sh`
-1. Copy them to `hanzi-writer-data-youyin/data`
-1. Go into `YouyinWeb` and run `./run.sh` to start the server.
-1. Finally, open Youyin locally on `http://0.0.0.0:8080` and try creating character cards with the new characters.
+- Create `hanzi-writer` character files, like `run.sh`
+- Copy them to `hanzi-writer-data-youyin/data`
+- Go into `YouyinWeb` and run `./run.sh` to start the server.
+- Finally, open Youyin locally on `http://0.0.0.0:8080` and try creating character cards with the new characters.
 
 Once all characters are working and generated correctly, simply go to the `hanzi-writer-data-youyin` directory, commit and push the changes.
