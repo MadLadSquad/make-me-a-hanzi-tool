@@ -34,9 +34,9 @@ In addition to improving the editor, we've also added scripts to make generating
 ### `youyin-dev-run.sh`
 This script runs `./run.sh` for Youyin development. First, make sure you have the following repositories cloned in the same folder without renames:
 
-1. make-me-a-hanzi-tool
-1. [YouyinWeb](https://github.com/MadLadSquad/YouyinWeb)
-1. [hanzi-writer-data-youyin](https://github.com/MadLadSquad/hanzi-writer-data-youyin)
+- make-me-a-hanzi-tool
+- [YouyinWeb](https://github.com/MadLadSquad/YouyinWeb)
+- [hanzi-writer-data-youyin](https://github.com/MadLadSquad/hanzi-writer-data-youyin)
 
 Create a symbolic link so that `hanzi-writer-data-youyin/data/` points to `YouyinWeb/data/`: `ln -s YouyinWeb/data/ hanzi-writer-data-youyin/data/`
 
