@@ -31,7 +31,7 @@ In addition to improving the editor, we've also added scripts to make generating
 1. `process.py` - Reads the `make-me-a-hanzi` dictionary from the characters you have created and converts it to individual character files in `hanzi-writer` format under the `output` folder. Do not use directly, use `run.sh` instead
 1. `run.sh` - Gets the character data from the meteor database, exports it to `tmp.json`, which is used as a `make-me-a-hanzi` dictionary file. It then runs `process.py`
 
-### `personal-run.sh`
+### `youyin-dev-run.sh`
 This script runs `./run.sh` for Youyin development. First, make sure you have the following repositories cloned in the same folder without renames:
 
 1. make-me-a-hanzi-tool
@@ -42,7 +42,7 @@ Create a symbolic link so that `hanzi-writer-data-youyin/data/` points to `Youyi
 
 Next, edit `YouyinWeb/index.js` and change the `window.CHARACTER_FETCH_URL` string to `"http://0.0.0.0:8080/data/"`
 
-With this setup, you can test characters. Now, every time you have finished a batch of characters, run go into the `make-me-a-hanzi-tool/server` directory and run `./personal-run.sh`. It will:
+With this setup, you can test characters. Now, every time you have finished a batch of characters, run go into the `make-me-a-hanzi-tool/server` directory and run `./youyin-dev-run.sh`. It will:
 
 1. Create `hanzi-writer` character files, like `run.sh`
 1. Copy them to `hanzi-writer-data-youyin/data`
