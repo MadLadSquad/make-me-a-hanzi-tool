@@ -42,7 +42,7 @@ Create a symbolic link so that `hanzi-writer-data-youyin/data/` points to `Youyi
 
 Next, edit `YouyinWeb/index.js` and change the `window.CHARACTER_FETCH_URL` string to `"http://0.0.0.0:8080/data/"`
 
-With this setup, you can test characters. Now, every time you have finished a batch of characters, run go into the `make-me-a-hanzi-tool/server` directory and run `./youyin-dev-run.sh`. It will:
+With this setup, you can test characters. Now, every time you have finished a batch of characters, go into the `make-me-a-hanzi-tool/server` directory and run `./youyin-dev-run.sh`. It will:
 
 1. Create `hanzi-writer` character files, like `run.sh`
 1. Copy them to `hanzi-writer-data-youyin/data`
